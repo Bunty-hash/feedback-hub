@@ -90,3 +90,18 @@ grant select on public.feedback to authenticated;
 -- insert into public.admin_users (user_id)
 -- select id from auth.users where email = 'REPLACE_WITH_ADMIN_EMAIL'
 -- on conflict do nothing;
+
+-- 6. Panel questions (admin-only accept / decline / reply on Presentation questions) --------
+create table if not exists public.panel_questions (
+  feedback_id uuid primary key references public.feedback(id) on delete cascade,
+  status      text not null default 'accepted' check (status in ('accepted', 'answered', 'declined')),
+  reply       text check (reply is null or char_length(reply) <= 4000),
+  replied_by  text,
+  updated_at  timestamptz not null default now()
+);
+alter table public.panel_questions enable row level security;
+revoke all on public.panel_questions from anon, authenticated;
+grant select, insert, update on public.panel_questions to authenticated;
+create policy panel_questions_select on public.panel_questions for select to authenticated using (public.is_admin());
+create policy panel_questions_insert on public.panel_questions for insert to authenticated with check (public.is_admin());
+create policy panel_questions_update on public.panel_questions for update to authenticated using (public.is_admin()) with check (public.is_admin());

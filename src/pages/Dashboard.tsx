@@ -1,4 +1,5 @@
 import { Icon } from '../components/Icon';
+import AdminNav from '../components/AdminNav';
 import { Fragment, useCallback, useEffect, useMemo, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { CATEGORIES, CATEGORY_BY_SLUG, type CategorySlug } from '../lib/categories';
@@ -135,6 +136,8 @@ export default function Dashboard() {
       </div>
 
       {error && <div className="alert alert-error" role="alert">{error}</div>}
+
+      <AdminNav />
 
       <section className="panel filters" aria-label="Filters">
         <div className="field">

@@ -4,6 +4,7 @@ import AdminGate from './components/AdminGate';
 import Home from './pages/Home';
 import FormPage from './pages/FormPage';
 import Dashboard from './pages/Dashboard';
+import Panel from './pages/Panel';
 import NotFound from './pages/NotFound';
 
 export default function App() {
@@ -17,6 +18,14 @@ export default function App() {
           element={
             <AdminGate>
               <Dashboard />
+            </AdminGate>
+          }
+        />
+        <Route
+          path="/admin/panel"
+          element={
+            <AdminGate>
+              <Panel />
             </AdminGate>
           }
         />

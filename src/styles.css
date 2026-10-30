@@ -314,3 +314,28 @@ a { color: #fff; }
 .hero { margin: 0 0 1.75rem; padding: 0; background: none; overflow: visible; }
 .hero::after, .hero-brand, .hero-console { display: none; }
 .hero > *:not(.hero-brand) { max-width: 720px; }
+
+/* Admin sub-navigation and the panel Q&A */
+.admin-nav { display: flex; gap: 0.5rem; margin-bottom: 1.25rem; border-bottom: 1px solid #333; }
+.admin-nav a { display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.65rem 1.1rem; font-family: var(--head); font-weight: 700; font-size: 0.95rem; letter-spacing: 0.1em; text-transform: uppercase; text-decoration: none; color: var(--muted); border-bottom: 3px solid transparent; margin-bottom: -1px; }
+.admin-nav a:hover { color: #fff; }
+.admin-nav a.active { color: #fff; border-bottom-color: var(--accent); }
+.qa-tabs { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1rem 0 1.25rem; }
+.qa-tab { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background: linear-gradient(180deg, #2c2c2c, #181818); border: 1px solid #555; border-bottom-color: #000; color: #ddd; cursor: pointer; font-family: var(--head); font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; font-size: 0.85rem; }
+.qa-tab.on { background: linear-gradient(180deg, #ff4a50, #c91f24); border-color: #ff6b6f; color: #fff; }
+.qa-count { background: #000; color: var(--accent); padding: 0 0.45rem; min-width: 1.6rem; text-align: center; border: 1px solid #333; }
+.qa-tab.on .qa-count { color: #fff; }
+.qa-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 1rem; }
+.qa-card { background: rgba(13, 13, 13, 0.85); border: 1.5px dotted #5a5a5a; padding: 1.25rem 1.4rem; }
+.qa-card.st-accepted { border-color: #f5a524; }
+.qa-card.st-answered { border-color: var(--pos); }
+.qa-card.st-declined { opacity: 0.65; }
+.qa-meta { display: flex; flex-wrap: wrap; gap: 0.4rem 1rem; align-items: center; font-size: 0.85rem; color: var(--muted); margin-bottom: 0.75rem; }
+.qa-badge { padding: 0.1rem 0.6rem; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; background: #222; color: #fff; }
+.qa-badge.st-new { background: var(--accent); }
+.qa-badge.st-accepted { background: #f5a524; color: #000; }
+.qa-badge.st-answered { background: var(--pos); color: #000; }
+.qa-question { font-family: var(--head); font-size: 1.6rem; font-weight: 300; line-height: 1.3; color: #fff; margin: 0 0 1rem; overflow-wrap: anywhere; white-space: pre-wrap; }
+.qa-card textarea { width: 100%; padding: 0.6rem 0.7rem; background: #0d0d0d; border: 1px solid #555; border-radius: 0; color: #fff; resize: vertical; }
+.qa-card textarea:focus { outline: none; border-color: #fff; }
+.qa-card .field { margin-bottom: 0.9rem; }
