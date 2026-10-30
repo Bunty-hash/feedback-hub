@@ -301,3 +301,16 @@ a { color: #fff; }
 .hero-brand img { width: 240px; height: auto; display: block; filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.7)); }
 .hero-brand span { font-family: var(--head); font-weight: 300; font-size: 1.7rem; letter-spacing: 0.3em; text-transform: uppercase; color: #fff; padding-left: 0.3em; white-space: nowrap; }
 @media (max-width: 900px) { .hero-brand { display: none; } }
+
+/* "BE YOUR BEST" background lettering in the home banner */
+.hero::after { content: 'BE YOUR BEST'; position: absolute; left: 0; right: 0; bottom: -0.12em; text-align: center; white-space: nowrap; font-family: var(--head); font-weight: 700; font-size: clamp(3rem, 9vw, 7.5rem); line-height: 1; letter-spacing: 0.08em; color: rgba(255, 255, 255, 0.07); pointer-events: none; z-index: 0; }
+.hero > *:not(.hero-brand) { position: relative; z-index: 1; }
+.hero-brand { z-index: 1; }
+
+.hero { padding-bottom: 7.5rem; }
+
+/* Home: "Be your best" banner from MA University replaces the textured hero */
+.home-banner { display: block; width: 100%; height: auto; margin: 0 0 1.5rem; border: 1px solid #333; }
+.hero { margin: 0 0 1.75rem; padding: 0; background: none; overflow: visible; }
+.hero::after, .hero-brand, .hero-console { display: none; }
+.hero > *:not(.hero-brand) { max-width: 720px; }

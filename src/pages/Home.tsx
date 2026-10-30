@@ -5,11 +5,8 @@ import { Icon } from '../components/Icon';
 export default function Home() {
   return (
     <>
+      <img className="home-banner" src="/be-your-best.webp" alt="MA University: Be your best" width="850" height="290" />
       <section className="hero">
-        <div className="hero-brand" role="img" aria-label="MA University">
-          <img src="/ma-logo.png" alt="" width="240" height="114" />
-          <span>University</span>
-        </div>
         <p className="kicker">Feedback</p>
         <h1>Share your feedback</h1>
         <p className="muted lead">Choose the form that matches your session. One question at a time, about two minutes.</p>
