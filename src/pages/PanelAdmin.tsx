@@ -5,7 +5,7 @@ import AdminNav from '../components/AdminNav';
 
 interface Channel { id: string; code: string; title: string; kind: string; speaker: string | null; status: 'open' | 'closed'; created_at: string }
 interface Reply { id: string; question_id: string; body: string; author_name: string | null; is_host: boolean; hidden: boolean }
-interface Question { id: string; channel_id: string; body: string; author_name: string | null; hidden: boolean; accepted: boolean; created_at: string }
+interface Question { id: string; channel_id: string; body: string; author_name: string | null; hidden: boolean; accepted: boolean; accepted_at: string | null; created_at: string }
 const ACK = 'Thank you. We have received your question and it will be addressed.';
 const KINDS = ['Presentation', 'Product launch', 'Training', 'Masterclass', 'Exhibition', 'Other'];
 
@@ -19,6 +19,7 @@ export default function PanelAdmin() {
   const [kind, setKind] = useState(KINDS[0]);
   const [speaker, setSpeaker] = useState('');
   const [draft, setDraft] = useState<Record<string, string>>({});
+  const [tab, setTab] = useState<'new' | 'accepted'>('new');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState('');
 
@@ -78,7 +79,7 @@ export default function PanelAdmin() {
   async function accept(q: Question) {
     setBusy(q.id); setError('');
     const { error: e1 } = await supabase.from('channel_replies').insert({ question_id: q.id, body: ACK, is_host: true, author_name: 'Host' });
-    const { error: e2 } = e1 ? { error: e1 } : await supabase.from('channel_questions').update({ accepted: true }).eq('id', q.id);
+    const { error: e2 } = e1 ? { error: e1 } : await supabase.from('channel_questions').update({ accepted: true, accepted_at: new Date().toISOString() }).eq('id', q.id);
     if (e2) setError('Could not accept the question.'); else if (sel) await loadChannel(sel);
     setBusy('');
   }
@@ -90,7 +91,8 @@ export default function PanelAdmin() {
   const link = (c: Channel) => `${window.location.origin}/panel/${c.code}`;
   const current = channels.find((c) => c.id === sel) ?? null;
   const pending = questions.filter((q) => !q.accepted);
-  const acceptedCount = questions.length - pending.length;
+  const done = questions.filter((q) => q.accepted).sort((a, b) => (b.accepted_at ?? '').localeCompare(a.accepted_at ?? ''));
+  const stamp = (iso: string | null) => (iso ? new Date(iso).toLocaleString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Singapore' }) : 'time not recorded');
   const sorted = [...pending].sort((a, b) => (votes[b.id] ?? 0) - (votes[a.id] ?? 0));
 
   return (
@@ -130,8 +132,26 @@ export default function PanelAdmin() {
 
       {current && (
         <section className="panel">
-          <h2>{current.title}: new questions ({pending.length}){acceptedCount > 0 && <small className="muted"> · {acceptedCount} accepted</small>}</h2>
-          {sorted.length === 0 ? <p className="muted">No new questions. Accepted questions leave this list.</p> : (
+          <h2>{current.title}</h2>
+          <div className="qa-tabs" role="tablist">
+            <button type="button" role="tab" aria-selected={tab === 'new'} className={`qa-tab${tab === 'new' ? ' on' : ''}`} onClick={() => setTab('new')}>New ({pending.length})</button>
+            <button type="button" role="tab" aria-selected={tab === 'accepted'} className={`qa-tab${tab === 'accepted' ? ' on' : ''}`} onClick={() => setTab('accepted')}>Accepted ({done.length})</button>
+          </div>
+          {tab === 'accepted' ? (done.length === 0 ? <p className="muted">No accepted questions yet.</p> : (
+            <ul className="qa-list">
+              {done.map((q) => (
+                <li key={q.id} className="qa-card">
+                  <div className="qa-meta"><span className="qa-badge st-answered">accepted {stamp(q.accepted_at)} (SGT)</span><span>{q.author_name || 'Anonymous'}</span><span className="qa-votes"><Icon name="up" /> {votes[q.id] ?? 0} upvotes</span></div>
+                  <p className="qa-question">{q.body}</p>
+                  <ul className="replies">
+                    {replies.filter((r) => r.question_id === q.id).map((r) => (
+                      <li key={r.id} className={r.is_host ? 'host' : ''}><span className="reply-who">{r.is_host ? 'Host' : r.author_name || 'Anonymous'}</span><p>{r.body}</p></li>
+                    ))}
+                  </ul>
+                </li>
+              ))}
+            </ul>
+          )) : sorted.length === 0 ? <p className="muted">No new questions. Accepted questions leave this list.</p> : (
             <ul className="qa-list">
               {sorted.map((q) => (
                 <li key={q.id} className={`qa-card${q.hidden ? ' st-declined' : ''}`}>

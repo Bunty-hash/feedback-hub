@@ -103,6 +103,7 @@ create table if not exists public.channels (
 );
 create table if not exists public.channel_questions (
   accepted boolean not null default false,
+  accepted_at timestamptz,
   id          uuid primary key default gen_random_uuid(),
   channel_id  uuid not null references public.channels(id) on delete cascade,
   body        text not null check (char_length(body) between 1 and 500),
