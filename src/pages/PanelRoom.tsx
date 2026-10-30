@@ -18,6 +18,7 @@ export default function PanelRoom() {
   const [qs, setQs] = useState<Q[]>([]);
   const [text, setText] = useState('');
   const [name, setName] = useState(getName());
+  const [email, setEmail] = useState('');
   const [busy, setBusy] = useState('');
   const [error, setError] = useState('');
 
@@ -39,9 +40,9 @@ export default function PanelRoom() {
     if (!text.trim()) return;
     setBusy('ask'); setError('');
     saveName(name);
-    const { error: err } = await supabase.rpc('channel_ask', { p_code: code, p_body: text.trim(), p_name: name, p_voter: voterId() });
+    const { error: err } = await supabase.rpc('channel_ask', { p_code: code, p_body: text.trim(), p_name: name, p_voter: voterId(), p_email: email.trim() || null });
     if (err) setError('Your question could not be sent. The panel may be closed.');
-    else { setText(''); await load(); }
+    else { setText(''); setEmail(''); await load(); }
     setBusy('');
   }
   async function vote(q: Q) {
@@ -74,8 +75,10 @@ export default function PanelRoom() {
           <textarea id="q" rows={2} maxLength={500} value={text} onChange={(e) => setText(e.target.value)} placeholder="Type your question for the panel…" />
           <div className="ask-row">
             <input type="text" maxLength={40} value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name (optional)" aria-label="Your name (optional)" />
+            <input type="email" maxLength={254} value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email (optional, for a private reply)" aria-label="Email (optional, for a private reply)" />
             <button type="submit" className="btn btn-primary" disabled={busy === 'ask' || !text.trim()}><Icon name="send" /> Send question</button>
           </div>
+          <p className="muted small">Sensitive question? Add your email and the host can answer you privately. Your email is seen only by the host of this panel and is never shown to other participants.</p>
         </form>
       )}
       {closed && <div className="alert alert-error">This panel is closed. You can still read the questions and answers.</div>}

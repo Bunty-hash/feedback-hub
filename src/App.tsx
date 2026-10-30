@@ -4,6 +4,7 @@ import AdminGate from './components/AdminGate';
 import Home from './pages/Home';
 import FormPage from './pages/FormPage';
 import Dashboard from './pages/Dashboard';
+import HostsAdmin from './pages/HostsAdmin';
 import PanelAdmin from './pages/PanelAdmin';
 import PanelJoin from './pages/PanelJoin';
 import PanelRoom from './pages/PanelRoom';
@@ -20,7 +21,7 @@ export default function App() {
         <Route
           path="/admin"
           element={
-            <AdminGate>
+            <AdminGate masterOnly>
               <Dashboard />
             </AdminGate>
           }
@@ -30,6 +31,14 @@ export default function App() {
           element={
             <AdminGate>
               <PanelAdmin />
+            </AdminGate>
+          }
+        />
+        <Route
+          path="/admin/hosts"
+          element={
+            <AdminGate masterOnly>
+              <HostsAdmin />
             </AdminGate>
           }
         />

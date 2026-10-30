@@ -5,7 +5,7 @@ import AdminNav from '../components/AdminNav';
 
 interface Channel { id: string; code: string; title: string; kind: string; speaker: string | null; status: 'open' | 'closed'; created_at: string }
 interface Reply { id: string; question_id: string; body: string; author_name: string | null; is_host: boolean; hidden: boolean }
-interface Question { id: string; channel_id: string; body: string; author_name: string | null; hidden: boolean; accepted: boolean; accepted_at: string | null; created_at: string }
+interface Question { id: string; channel_id: string; body: string; author_name: string | null; hidden: boolean; contact_email: string | null; accepted: boolean; accepted_at: string | null; created_at: string }
 const ACK = 'Thank you. We have received your question and it will be addressed.';
 const KINDS = ['Presentation', 'Product launch', 'Training', 'Masterclass', 'Exhibition', 'Other'];
 
@@ -141,7 +141,7 @@ export default function PanelAdmin() {
             <ul className="qa-list">
               {done.map((q) => (
                 <li key={q.id} className="qa-card">
-                  <div className="qa-meta"><span className="qa-badge st-answered">accepted {stamp(q.accepted_at)} (SGT)</span><span>{q.author_name || 'Anonymous'}</span><span className="qa-votes"><Icon name="up" /> {votes[q.id] ?? 0} upvotes</span></div>
+                  <div className="qa-meta"><span className="qa-badge st-answered">accepted {stamp(q.accepted_at)} (SGT)</span><span>{q.author_name || 'Anonymous'}</span>{q.contact_email && <span className="qa-badge st-answered">private reply: {q.contact_email}</span>}<span className="qa-votes"><Icon name="up" /> {votes[q.id] ?? 0} upvotes</span></div>
                   <p className="qa-question">{q.body}</p>
                   <ul className="replies">
                     {replies.filter((r) => r.question_id === q.id).map((r) => (
@@ -155,7 +155,7 @@ export default function PanelAdmin() {
             <ul className="qa-list">
               {sorted.map((q) => (
                 <li key={q.id} className={`qa-card${q.hidden ? ' st-declined' : ''}`}>
-                  <div className="qa-meta">{q.hidden && <span className="qa-badge st-declined">hidden</span>}<span>{q.author_name || 'Anonymous'}</span><span className="qa-votes"><Icon name="up" /> {votes[q.id] ?? 0} upvotes</span></div>
+                  <div className="qa-meta">{q.hidden && <span className="qa-badge st-declined">hidden</span>}<span>{q.author_name || 'Anonymous'}</span>{q.contact_email && <span className="qa-badge st-answered">private reply: {q.contact_email}</span>}<span className="qa-votes"><Icon name="up" /> {votes[q.id] ?? 0} upvotes</span></div>
                   <p className="qa-question">{q.body}</p>
                   <ul className="replies">
                     {replies.filter((r) => r.question_id === q.id).map((r) => (

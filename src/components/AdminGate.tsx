@@ -1,4 +1,5 @@
 import { useEffect, useState, type ReactNode } from 'react';
+import { Navigate } from 'react-router-dom';
 import type { Session } from '@supabase/supabase-js';
 import { supabase, isConfigured } from '../lib/supabase';
 import Login from '../pages/Login';
@@ -7,10 +8,11 @@ type Gate =
   | { s: 'loading' }
   | { s: 'signedout' }
   | { s: 'denied' }
-  | { s: 'ok' };
+  | { s: 'ok' }
+  | { s: 'host' };
 
 /** Shows the login form, an access-denied notice, or the admin content. Access is also enforced by RLS in the database. */
-export default function AdminGate({ children }: { children: ReactNode }) {
+export default function AdminGate({ children, masterOnly = false }: { children: ReactNode; masterOnly?: boolean }) {
   const [state, setState] = useState<Gate>({ s: 'loading' });
 
   useEffect(() => {
@@ -25,9 +27,10 @@ export default function AdminGate({ children }: { children: ReactNode }) {
         if (active) setState({ s: 'signedout' });
         return;
       }
-      const { data, error } = await supabase.rpc('is_admin');
+      const { data, error } = await supabase.rpc('admin_role');
       if (!active) return;
-      setState(!error && data === true ? { s: 'ok' } : { s: 'denied' });
+      if (error || (data !== 'master' && data !== 'host')) setState({ s: 'denied' });
+      else setState({ s: data === 'master' ? 'ok' : 'host' });
     }
 
     supabase.auth.getSession().then(({ data }) => evaluate(data.session));
@@ -54,5 +57,6 @@ export default function AdminGate({ children }: { children: ReactNode }) {
       </div>
     );
   }
+  if (state.s === 'host' && masterOnly) return <Navigate to="/admin/panel" replace />;
   return <>{children}</>;
 }

@@ -208,3 +208,9 @@ revoke all on function public.channel_join(text), public.channel_questions_list(
   public.channel_reply(text, uuid, text, text), public.channel_vote(text, uuid, uuid, boolean) from public;
 grant execute on function public.channel_join(text), public.channel_questions_list(text, uuid), public.channel_ask(text, text, text),
   public.channel_reply(text, uuid, text, text), public.channel_vote(text, uuid, uuid, boolean) to anon, authenticated;
+
+-- 7. Host accounts and contact email (applied via migration host_accounts_and_contact_email)
+-- admin_users gains role ('master' | 'host'), email, created_by. is_admin() = master only; is_host() = any role.
+-- channels.owner (default auth.uid()); hosts see/manage only their own channels, master sees all, via can_manage_channel().
+-- channel_questions.contact_email is optional, never returned by channel_questions_list, and visible only to the channel's host.
+-- Host logins are created by the Edge Function supabase/functions/manage-hosts (master only).
