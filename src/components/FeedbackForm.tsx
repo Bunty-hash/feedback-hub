@@ -1,3 +1,4 @@
+import { Icon } from './Icon';
 import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase, isConfigured } from '../lib/supabase';
@@ -145,12 +146,12 @@ export default function FeedbackForm({ category }: { category: CategoryDef }) {
   if (status === 'done') {
     return (
       <div className="confirm" role="status">
-        <div className="tick" aria-hidden="true">✓</div>
+        <div className="tick" aria-hidden="true"><Icon name="check" size={40} /></div>
         <h1>Thank you for your feedback</h1>
         <p className="muted">Your {category.title.toLowerCase()} has been submitted successfully.</p>
         <div className="actions">
-          <button type="button" className="btn btn-primary" onClick={reset}>Submit another response</button>
-          <Link to="/" className="btn">Back to home</Link>
+          <button type="button" className="btn btn-primary" onClick={reset}><Icon name="send" /> Submit another response</button>
+          <Link to="/" className="btn"><Icon name="home" /> Back to home</Link>
         </div>
       </div>
     );
@@ -173,7 +174,7 @@ export default function FeedbackForm({ category }: { category: CategoryDef }) {
       </div>
 
       <p className="wizard-top">
-        <Link to="/">← All forms</Link>
+        <Link to="/"><Icon name="arrowLeft" /> All forms</Link>
         <span>{category.title}</span>
       </p>
 
@@ -223,9 +224,9 @@ export default function FeedbackForm({ category }: { category: CategoryDef }) {
         )}
 
         <div className="step-actions">
-          {index > 0 && <button type="button" className="btn" onClick={back}>Back</button>}
+          {index > 0 && <button type="button" className="btn" onClick={back}><Icon name="arrowLeft" /> Back</button>}
           <button type="button" className="btn btn-primary" onClick={next} disabled={submitting}>
-            {isLast ? (submitting ? 'Submitting…' : 'Submit feedback') : 'OK'}
+            {isLast ? (submitting ? 'Submitting…' : <>Submit feedback <Icon name="send" /></>) : <>OK <Icon name="check" /></>}
           </button>
           <span className="hint">press <strong>Enter ↵</strong></span>
         </div>

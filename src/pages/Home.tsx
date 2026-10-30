@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { CATEGORIES } from '../lib/categories';
+import { Icon } from '../components/Icon';
 
 export default function Home() {
   return (
@@ -12,10 +13,10 @@ export default function Home() {
       <section className="grid" aria-label="Feedback categories">
         {CATEGORIES.map((c, i) => (
           <Link key={c.slug} to={`/feedback/${c.slug}`} className="cat-card">
-            <span className="cat-num">{String(i + 1).padStart(2, '0')}</span>
+            <div className="cat-top"><span className="cat-icon"><Icon name={c.icon} size={30} /></span><span className="cat-num">{String(i + 1).padStart(2, '0')}</span></div>
             <h2>{c.title}</h2>
             <p className="muted">{c.blurb}</p>
-            <span className="cat-cta">Start →</span>
+            <span className="cat-cta">Start <Icon name="arrowRight" /></span>
           </Link>
         ))}
       </section>

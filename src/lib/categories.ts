@@ -15,7 +15,7 @@ export interface CategoryDef {
   slug: CategorySlug;
   title: string;
   blurb: string;
-  icon: string;
+  icon: 'training' | 'exhibition' | 'masterclass' | 'presentation';
   fields: FieldDef[];
 }
 
@@ -42,7 +42,7 @@ export const CATEGORIES: CategoryDef[] = [
     slug: 'training',
     title: 'Training Feedback',
     blurb: 'Tell us how your training programme went.',
-    icon: '🎓',
+    icon: 'training',
     fields: [
       text('event_name', 'Training programme name', { role: 'event_name' }),
       date('event_date', 'Training date', { role: 'event_date' }),
@@ -59,7 +59,7 @@ export const CATEGORIES: CategoryDef[] = [
     slug: 'exhibition',
     title: 'Exhibition Training Feedback',
     blurb: 'Share your experience of training at an exhibition.',
-    icon: '🏛️',
+    icon: 'exhibition',
     fields: [
       text('event_name', 'Exhibition name', { role: 'event_name' }),
       date('event_date', 'Exhibition date', { role: 'event_date' }),
@@ -75,7 +75,7 @@ export const CATEGORIES: CategoryDef[] = [
     slug: 'masterclass',
     title: 'Masterclass Feedback',
     blurb: 'Rate your masterclass session and instructor.',
-    icon: '🎯',
+    icon: 'masterclass',
     fields: [
       text('event_name', 'Masterclass title', { role: 'event_name' }),
       date('event_date', 'Session date', { role: 'event_date' }),
@@ -92,7 +92,7 @@ export const CATEGORIES: CategoryDef[] = [
     slug: 'presentation',
     title: 'Presentation Questionnaire',
     blurb: 'Let us know how clear and useful the presentation was.',
-    icon: '📊',
+    icon: 'presentation',
     fields: [
       text('event_name', 'Presentation topic', { role: 'event_name' }),
       date('event_date', 'Presentation date', { role: 'event_date' }),

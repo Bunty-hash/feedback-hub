@@ -1,3 +1,4 @@
+import { Icon } from '../components/Icon';
 import { Fragment, useCallback, useEffect, useMemo, useState } from 'react';
 import { supabase } from '../lib/supabase';
 import { CATEGORIES, CATEGORY_BY_SLUG, type CategorySlug } from '../lib/categories';
@@ -125,11 +126,11 @@ export default function Dashboard() {
           <p className="muted">{filtersOn ? 'Figures reflect the current filters.' : 'Showing all feedback.'}</p>
         </div>
         <div className="actions">
-          <button type="button" className="btn" onClick={() => void load()} disabled={loading}>Refresh</button>
+          <button type="button" className="btn" onClick={() => void load()} disabled={loading}><Icon name="refresh" /> Refresh</button>
           <button type="button" className="btn btn-primary" onClick={() => downloadCsv(filtered)} disabled={filtered.length === 0}>
-            Export CSV ({filtered.length})
+            <Icon name="download" /> Export CSV ({filtered.length})
           </button>
-          <button type="button" className="btn btn-ghost" onClick={() => supabase.auth.signOut()}>Sign out</button>
+          <button type="button" className="btn btn-ghost" onClick={() => supabase.auth.signOut()}><Icon name="logout" /> Sign out</button>
         </div>
       </div>
 
@@ -156,16 +157,16 @@ export default function Dashboard() {
           <input id="flt-q" type="search" placeholder="Name, event, trainer or comment" value={query} onChange={(e) => setQuery(e.target.value)} />
         </div>
         {filtersOn && (
-          <button type="button" className="btn btn-ghost" onClick={() => { setCategory('all'); setFrom(''); setTo(''); setQuery(''); }}>Clear</button>
+          <button type="button" className="btn btn-ghost" onClick={() => { setCategory('all'); setFrom(''); setTo(''); setQuery(''); }}><Icon name="x" /> Clear</button>
         )}
       </section>
 
       <section className="stats" aria-label="Summary">
-        <div className="stat"><span className="stat-label">Total submissions</span><span className="stat-value">{stats.total}</span></div>
-        <div className="stat"><span className="stat-label">Average satisfaction</span><span className="stat-value">{fmtAvg(stats.average)}<small> / 5</small></span></div>
+        <div className="stat"><span className="stat-label"><Icon name="users" /> Total submissions</span><span className="stat-value">{stats.total}</span></div>
+        <div className="stat"><span className="stat-label"><Icon name="star" /> Average satisfaction</span><span className="stat-value">{fmtAvg(stats.average)}<small> / 5</small></span></div>
         {SENTIMENTS.map((s) => (
           <div className={`stat sent-${s}`} key={s}>
-            <span className="stat-label">{cap(s)}</span>
+            <span className="stat-label"><Icon name={s === 'positive' ? 'smile' : s === 'neutral' ? 'meh' : 'frown'} /> {cap(s)}</span>
             <span className="stat-value">{stats.sentiment[s]}</span>
             <span className="stat-sub">{stats.total ? Math.round((stats.sentiment[s] / stats.total) * 100) : 0}%</span>
           </div>
@@ -232,7 +233,7 @@ export default function Dashboard() {
                     <td>{r.host_name || '–'}</td>
                     <td><Stars value={r.overall_rating} /></td>
                     <td><span className={`pill sent-${r.sentiment}`}>{r.sentiment}</span></td>
-                    <td><button type="button" className="btn btn-small" onClick={() => setSelected(r)}>View</button></td>
+                    <td><button type="button" className="btn btn-small" onClick={() => setSelected(r)}><Icon name="eye" /> View</button></td>
                   </tr>
                 ))}
               </tbody>
@@ -242,9 +243,9 @@ export default function Dashboard() {
 
         {filtered.length > PAGE_SIZE && (
           <div className="pager">
-            <button type="button" className="btn btn-small" disabled={page === 0} onClick={() => setPage((p) => p - 1)}>Previous</button>
+            <button type="button" className="btn btn-small" disabled={page === 0} onClick={() => setPage((p) => p - 1)}><Icon name="prev" /> Previous</button>
             <span>Page {page + 1} of {pages}</span>
-            <button type="button" className="btn btn-small" disabled={page >= pages - 1} onClick={() => setPage((p) => p + 1)}>Next</button>
+            <button type="button" className="btn btn-small" disabled={page >= pages - 1} onClick={() => setPage((p) => p + 1)}>Next <Icon name="next" /></button>
           </div>
         )}
       </section>
@@ -273,7 +274,7 @@ function Detail({ row, onClose }: { row: FeedbackRow; onClose: () => void }) {
             <h2>{cat?.title ?? row.category}</h2>
             <p className="muted small">Submitted {fmtDateTime(row.created_at)}</p>
           </div>
-          <button type="button" className="btn btn-small" onClick={onClose} aria-label="Close">Close</button>
+          <button type="button" className="btn btn-small" onClick={onClose} aria-label="Close"><Icon name="x" /> Close</button>
         </div>
         <dl className="details">
           <dt>Participant</dt><dd>{row.participant_name || 'Anonymous'}</dd>

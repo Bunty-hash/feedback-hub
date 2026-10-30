@@ -1,3 +1,4 @@
+import { Icon } from '../components/Icon';
 import { useState, type FormEvent } from 'react';
 import { supabase, isConfigured } from '../lib/supabase';
 
@@ -34,7 +35,7 @@ export default function Login() {
         <input id="login-password" type="password" autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} />
       </div>
       <button type="submit" className="btn btn-primary" disabled={busy || !isConfigured}>
-        {busy ? 'Signing in…' : 'Sign in'}
+        {busy ? 'Signing in…' : <><Icon name="login" /> Sign in</>}
       </button>
     </form>
   );

@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { isConfigured } from '../lib/supabase';
+import { Icon } from './Icon';
 
 export function Layout({ children }: { children: ReactNode }) {
   return (
@@ -8,8 +9,8 @@ export function Layout({ children }: { children: ReactNode }) {
       <header>
         <div className="utility">
           <div className="container utility-inner">
-            <NavLink to="/" end>Feedback</NavLink>
-            <NavLink to="/admin">Admin</NavLink>
+            <NavLink to="/" end><Icon name="home" /> Feedback</NavLink>
+            <NavLink to="/admin"><Icon name="lock" /> Admin</NavLink>
           </div>
         </div>
         <div className="mainbar">

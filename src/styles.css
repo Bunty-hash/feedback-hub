@@ -247,3 +247,16 @@ tbody tr:hover { background: rgba(255, 255, 255, 0.05); }
 a { color: #fff; }
 .wizard-top a { color: var(--muted); }
 :focus-visible { outline-color: rgba(232, 38, 43, 0.7); }
+
+/* Icons */
+.ico { width: 1.15em; height: 1.15em; flex: none; vertical-align: -0.2em; }
+.utility a { display: inline-flex; align-items: center; gap: 0.4rem; }
+.cat-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.9rem; }
+.cat-icon { display: grid; place-items: center; width: 56px; height: 56px; border: 1.5px dotted var(--accent); color: var(--accent); background: rgba(232, 38, 43, 0.08); }
+.cat-card:hover .cat-icon { background: var(--accent); color: #fff; }
+.cat-cta { display: inline-flex; align-items: center; gap: 0.4rem; }
+.stat-label { display: inline-flex; align-items: center; gap: 0.4rem; }
+.stat-label .ico { color: var(--accent); }
+.tick .ico { width: 40px; height: 40px; }
+.wizard-top a { display: inline-flex; align-items: center; gap: 0.3rem; }
+.modal .btn .ico, .pager .btn .ico { width: 1em; height: 1em; }
