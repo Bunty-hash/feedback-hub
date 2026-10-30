@@ -80,7 +80,7 @@ export default function PanelAdmin() {
     setBusy(q.id); setError('');
     const { error: e1 } = await supabase.from('channel_replies').insert({ question_id: q.id, body: ACK, is_host: true, author_name: 'Host' });
     const { error: e2 } = e1 ? { error: e1 } : await supabase.from('channel_questions').update({ accepted: true, accepted_at: new Date().toISOString() }).eq('id', q.id);
-    if (e2) setError('Could not accept the question.'); else if (sel) await loadChannel(sel);
+    if (e2) setError('Could not accept the question.'); else { setTab('accepted'); if (sel) await loadChannel(sel); }
     setBusy('');
   }
   async function removeChannel(c: Channel) {

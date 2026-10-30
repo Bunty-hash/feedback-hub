@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type FormEvent } from 'react';
+import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { voterId } from '../lib/voter';
@@ -6,7 +6,7 @@ import { Icon } from '../components/Icon';
 
 interface Channel { id: string; code: string; title: string; kind: string; speaker: string | null; status: 'open' | 'closed' }
 interface Reply { id: string; body: string; author_name: string | null; is_host: boolean; created_at: string }
-interface Q { id: string; body: string; author_name: string | null; votes: number; voted: boolean; created_at: string; replies: Reply[] }
+interface Q { mine: boolean; id: string; body: string; author_name: string | null; votes: number; voted: boolean; created_at: string; replies: Reply[] }
 const SHAPES = ['tri', 'dia', 'cir', 'sqr'];
 
 function getName() { try { return localStorage.getItem('fh_name') ?? ''; } catch { return ''; } }
@@ -18,11 +18,8 @@ export default function PanelRoom() {
   const [qs, setQs] = useState<Q[]>([]);
   const [text, setText] = useState('');
   const [name, setName] = useState(getName());
-  const [open, setOpen] = useState<string | null>(null);
-  const [reply, setReply] = useState('');
   const [busy, setBusy] = useState('');
   const [error, setError] = useState('');
-  const typing = useRef(false);
 
   const load = useCallback(async () => {
     const [c, l] = await Promise.all([
@@ -32,7 +29,7 @@ export default function PanelRoom() {
     if (c.error) return;
     const first = (c.data as Channel[] | null)?.[0] ?? null;
     setCh(first);
-    if (!l.error && !typing.current) setQs(((l.data ?? []) as Q[]).map((q) => ({ ...q, votes: Number(q.votes) })));
+    if (!l.error) setQs(((l.data ?? []) as Q[]).map((q) => ({ ...q, votes: Number(q.votes) })));
   }, [code]);
 
   useEffect(() => { void load(); const t = setInterval(() => void load(), 5000); return () => clearInterval(t); }, [load]);
@@ -42,7 +39,7 @@ export default function PanelRoom() {
     if (!text.trim()) return;
     setBusy('ask'); setError('');
     saveName(name);
-    const { error: err } = await supabase.rpc('channel_ask', { p_code: code, p_body: text.trim(), p_name: name });
+    const { error: err } = await supabase.rpc('channel_ask', { p_code: code, p_body: text.trim(), p_name: name, p_voter: voterId() });
     if (err) setError('Your question could not be sent. The panel may be closed.');
     else { setText(''); await load(); }
     setBusy('');
@@ -54,16 +51,6 @@ export default function PanelRoom() {
     else setQs((all) => all.map((x) => (x.id === q.id ? { ...x, voted: !q.voted, votes: Number(data) } : x)).sort((a, b) => b.votes - a.votes));
     setBusy('');
   }
-  async function sendReply(q: Q) {
-    if (!reply.trim()) return;
-    setBusy(q.id); setError('');
-    saveName(name);
-    const { error: err } = await supabase.rpc('channel_reply', { p_code: code, p_question: q.id, p_body: reply.trim(), p_name: name });
-    if (err) setError('Your reply could not be sent.');
-    else { setReply(''); typing.current = false; await load(); }
-    setBusy('');
-  }
-
   if (ch === undefined) return <p className="muted center">Loading…</p>;
   if (ch === null) return (
     <div className="center"><h1>Panel not found</h1><p className="muted">Check the PIN and try again.</p><Link to="/panel" className="btn btn-primary">Enter a PIN</Link></div>
@@ -103,9 +90,9 @@ export default function PanelRoom() {
                 <Icon name="up" size={22} /><span className="vote-n">{q.votes}</span>
               </button>
               <div className="qa-body">
-                <div className="qa-meta"><span>{q.author_name || 'Anonymous'}</span></div>
+                <div className="qa-meta"><span>{q.author_name || 'Anonymous'}</span>{q.mine && <span className="qa-badge st-answered">your question</span>}</div>
                 <p className="qa-question">{q.body}</p>
-                {q.replies.length > 0 && (
+                {q.mine && q.replies.length > 0 && (
                   <ul className="replies">
                     {q.replies.map((r) => (
                       <li key={r.id} className={r.is_host ? 'host' : ''}>
@@ -115,24 +102,13 @@ export default function PanelRoom() {
                     ))}
                   </ul>
                 )}
-                {!closed && (open === q.id ? (
-                  <div className="reply-box">
-                    <textarea rows={2} maxLength={1000} autoFocus value={reply} onChange={(e) => setReply(e.target.value)}
-                      onFocus={() => { typing.current = true; }} onBlur={() => { typing.current = reply.trim() !== ''; }} placeholder="Write a reply…" />
-                    <div className="actions">
-                      <button type="button" className="btn btn-primary btn-small" disabled={busy === q.id || !reply.trim()} onClick={() => void sendReply(q)}><Icon name="reply" /> Reply</button>
-                      <button type="button" className="btn btn-ghost btn-small" onClick={() => { setOpen(null); setReply(''); typing.current = false; }}>Cancel</button>
-                    </div>
-                  </div>
-                ) : (
-                  <button type="button" className="btn btn-ghost btn-small" onClick={() => { setOpen(q.id); setReply(''); }}><Icon name="reply" /> Reply{q.replies.length ? ` (${q.replies.length})` : ''}</button>
-                ))}
+                {q.mine && q.replies.length === 0 && <p className="muted small">Your question has been sent. The host will reply to you here.</p>}
               </div>
             </li>
           ))}
         </ul>
       )}
-      <p className="muted small center">Votes and questions are anonymous unless you add a name. The host can remove inappropriate posts.</p>
+      <p className="muted small center">Anyone in the panel can upvote questions. Host replies are private and only shown to the person who asked.</p>
     </div>
   );
 }
