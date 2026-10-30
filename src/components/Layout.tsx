@@ -2,6 +2,7 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { isConfigured, supabase } from '../lib/supabase';
 import { Icon } from './Icon';
+import CustomCursor from './CustomCursor';
 
 function Account() {
   const [email, setEmail] = useState<string | null>(null);
@@ -36,6 +37,8 @@ function Account() {
 export function Layout({ children }: { children: ReactNode }) {
   return (
     <div className="shell">
+      <div className="grain" aria-hidden="true" />
+      <CustomCursor />
       <header>
         <div className="utility">
           <div className="container utility-inner">

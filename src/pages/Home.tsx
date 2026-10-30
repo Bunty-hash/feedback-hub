@@ -1,32 +1,24 @@
-import { Link } from 'react-router-dom';
+import { useMemo } from 'react';
 import { CATEGORIES } from '../lib/categories';
-import { Icon } from '../components/Icon';
+import Shelf, { type ShelfItem } from '../components/Shelf';
 
 export default function Home() {
+  const items = useMemo<ShelfItem[]>(
+    () => [
+      ...CATEGORIES.map((c, i) => ({ id: c.slug, to: `/feedback/${c.slug}`, title: c.title, blurb: c.blurb, icon: c.icon, cta: 'Start', tag: `Form ${String(i + 1).padStart(2, '0')} / Feedback`, spine: c.title.replace(/ Feedback$/, '').replace(/^Exhibition Training$/, 'Exhibition') })),
+      { id: 'panel', to: '/panel', title: 'Panel', blurb: 'Join a live panel with a PIN. Ask questions and upvote.', icon: 'message' as const, cta: 'Join', tag: `Live ${String(CATEGORIES.length + 1).padStart(2, '0')} / Panel`, spine: 'Panel' },
+    ],
+    [],
+  );
   return (
     <>
       <img className="home-banner" src="/be-your-best.webp" alt="MA University: Be your best" width="850" height="290" />
-      <section className="hero">
+      <section className="home-intro">
         <p className="kicker">Feedback</p>
         <h1>Share your feedback</h1>
-        <p className="muted lead">Choose the form that matches your session. One question at a time, about two minutes.</p>
+        <p className="muted lead">Pick a tape from the shelf. Click it to turn it, click again to open. About two minutes.</p>
       </section>
-      <section className="grid" aria-label="Feedback categories">
-        {CATEGORIES.map((c, i) => (
-          <Link key={c.slug} to={`/feedback/${c.slug}`} className="cat-card">
-            <div className="cat-top"><span className="cat-icon"><Icon name={c.icon} size={30} /></span><span className="cat-num">{String(i + 1).padStart(2, '0')}</span></div>
-            <h2>{c.title}</h2>
-            <p className="muted">{c.blurb}</p>
-            <span className="cat-cta">Start <Icon name="arrowRight" /></span>
-          </Link>
-        ))}
-        <Link to="/panel" className="cat-card panel-card">
-          <div className="cat-top"><span className="cat-icon"><Icon name="message" size={30} /></span><span className="cat-num">{String(CATEGORIES.length + 1).padStart(2, '0')}</span></div>
-          <h2>Panel</h2>
-          <p className="muted">Join a live panel with a PIN. Ask questions, upvote and reply.</p>
-          <span className="cat-cta">Join <Icon name="arrowRight" /></span>
-        </Link>
-      </section>
+      <Shelf items={items} />
     </>
   );
 }
