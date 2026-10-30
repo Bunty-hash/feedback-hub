@@ -24,15 +24,15 @@ export default function PanelJoin() {
 
   return (
     <div className="join">
-      <img className="join-badge" src="/join-panel.png" alt="MA Lighting: join the panel" width="220" height="220" />
-      <h1>Join a panel</h1>
-      <p className="muted lead">Enter the PIN on the screen to ask questions, upvote and reply.</p>
+      <img className="join-badge" src="/join-panel.png" alt="" width="200" height="200" />
+      <h1>Enter your PIN</h1>
+      <p className="muted lead">Type the 6-digit PIN shown by the host to ask questions and upvote.</p>
       <form className="join-card" onSubmit={join}>
         <label htmlFor="pin" className="sr">Panel PIN</label>
-        <input id="pin" className="pin" inputMode="numeric" autoComplete="off" maxLength={6} placeholder="PIN" value={pin}
+        <input id="pin" className="pin" inputMode="numeric" autoComplete="off" maxLength={6} placeholder="000000" value={pin}
           onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 6))} autoFocus />
         {error && <div className="alert alert-error" role="alert">{error}</div>}
-        <button type="submit" className="btn btn-primary join-btn" disabled={busy}>{busy ? 'Joining…' : <>Enter <Icon name="arrowRight" /></>}</button>
+        <button type="submit" className="btn btn-primary join-btn" disabled={busy}>{busy ? 'Joining…' : <>Join panel <Icon name="arrowRight" /></>}</button>
       </form>
     </div>
   );
