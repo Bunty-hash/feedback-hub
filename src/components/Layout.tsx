@@ -1,7 +1,35 @@
-import type { ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { Link, NavLink } from 'react-router-dom';
-import { isConfigured } from '../lib/supabase';
+import { isConfigured, supabase } from '../lib/supabase';
 import { Icon } from './Icon';
+
+function Account() {
+  const [email, setEmail] = useState<string | null>(null);
+  const [role, setRole] = useState<string | null>(null);
+  useEffect(() => {
+    if (!isConfigured) return;
+    let active = true;
+    async function apply(userEmail: string | null) {
+      if (!active) return;
+      setEmail(userEmail);
+      if (!userEmail) { setRole(null); return; }
+      const { data } = await supabase.rpc('admin_role');
+      if (active) setRole(typeof data === 'string' ? data : null);
+    }
+    void supabase.auth.getSession().then(({ data }) => apply(data.session?.user.email ?? null));
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => { setTimeout(() => void apply(session?.user.email ?? null), 0); });
+    return () => { active = false; sub.subscription.unsubscribe(); };
+  }, []);
+  if (!email) return null;
+  return (
+    <span className="account">
+      <Icon name="user" size={14} />
+      <span className="account-name" title={email}>{email}</span>
+      {role && <span className="account-role">{role}</span>}
+      <button type="button" className="account-out" onClick={() => supabase.auth.signOut()}>Sign out</button>
+    </span>
+  );
+}
 
 export function Layout({ children }: { children: ReactNode }) {
   return (
@@ -12,6 +40,7 @@ export function Layout({ children }: { children: ReactNode }) {
             <NavLink to="/" end><Icon name="home" /> Feedback</NavLink>
             <NavLink to="/panel"><Icon name="message" /> Panel</NavLink>
             <NavLink to="/admin"><Icon name="lock" /> Admin</NavLink>
+            <Account />
           </div>
         </div>
         <div className="mainbar">
