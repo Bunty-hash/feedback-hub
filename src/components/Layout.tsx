@@ -15,7 +15,7 @@ export function Layout({ children }: { children: ReactNode }) {
         <div className="mainbar">
           <div className="container mainbar-inner">
             <Link to="/" className="brand">
-              <span className="brand-mark" aria-hidden="true">★</span>
+              <img className="brand-logo" src="/ma-logo.png" alt="MA" width="52" height="25" />
               <span>Feedback Hub</span>
             </Link>
           </div>

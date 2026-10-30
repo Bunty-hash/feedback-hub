@@ -1,20 +1,20 @@
 /* Design language inspired by malighting.com: black and white, Roboto / Roboto Condensed,
    square corners, black uppercase buttons, one red accent. */
 :root {
-  --ink: #000;
-  --text: #222;
-  --muted: #666;
-  --line: #d9d9d9;
-  --soft: #f2f2f2;
-  --bg: #fff;
-  --accent: #d91f26;
-  --accent-dark: #b3171d;
-  --pos: #1b7f4d;
-  --pos-bg: #e3f3ea;
-  --neu: #8a6100;
-  --neu-bg: #fbf0cf;
-  --neg: #b3171d;
-  --neg-bg: #fbe4e5;
+  --ink: #fff;
+  --text: #e8e8e8;
+  --muted: #9a9a9a;
+  --line: #3a3a3a;
+  --soft: #1a1a1a;
+  --bg: #000;
+  --accent: #e8262b;
+  --accent-dark: #c41d22;
+  --pos: #3ddc84;
+  --pos-bg: #0f2a1b;
+  --neu: #f5a524;
+  --neu-bg: #2e2208;
+  --neg: #ff6b6f;
+  --neg-bg: #3a1214;
   --head: 'Roboto Condensed', 'Arial Narrow', Arial, sans-serif;
   --body: Roboto, 'Helvetica Neue', Arial, sans-serif;
 }
@@ -201,3 +201,49 @@ tbody tr:hover { background: #fafafa; }
   .star { width: 54px; }
   .wizard-top { margin-bottom: 1.75rem; }
 }
+
+/* MA Lighting dark template: textured black background, red accent, dotted cards */
+body { background: #000 linear-gradient(rgba(0, 0, 0, 0.84), rgba(0, 0, 0, 0.84)), url('/ma-bg.jpg') center / cover fixed no-repeat; background-blend-mode: normal; }
+.mainbar { background: #000; border-bottom: 1px solid #222; }
+.brand-logo { display: block; width: 52px; height: auto; }
+.cat-card, .panel, .form, .stat, .modal { background: rgba(13, 13, 13, 0.82); border: 1.5px dotted #5a5a5a; border-top-width: 1.5px; color: var(--text); }
+.cat-card:hover, .cat-card:focus-visible { border-color: var(--accent); box-shadow: none; }
+.cat-num { color: var(--accent); }
+.modal { border-top: 1.5px dotted var(--accent); }
+.panel h2 { border-bottom: 1px dotted #5a5a5a; }
+.filters { background: rgba(26, 26, 26, 0.85); }
+.stats { background: transparent; border: 0; gap: 0.75rem; }
+.btn { background: transparent; border-color: #666; color: #fff; }
+.btn:hover:not(:disabled) { border-color: #fff; }
+.btn-primary { background: var(--accent); border-color: var(--accent); }
+.btn-primary:hover:not(:disabled) { background: var(--accent-dark); border-color: var(--accent-dark); }
+.btn-ghost { border-color: transparent; }
+.progress { background: #222; }
+.big { border-bottom-color: #fff; color: #fff; }
+textarea.big { border-color: #666; background: rgba(13, 13, 13, 0.7); }
+.big::placeholder { color: #666; }
+.step-num span { color: #777; }
+.star { background: rgba(13, 13, 13, 0.8); border-color: #555; color: #555; }
+.star.on { border-color: var(--accent); }
+.star:hover { border-color: #fff; }
+.stars-ro span { color: #444; }
+.tick { background: var(--accent); }
+input[type='text'], input[type='email'], input[type='password'], input[type='date'], input[type='search'], select { background: #0d0d0d; border-color: #555; color: #fff; }
+input:focus, select:focus { border-color: #fff; box-shadow: 0 0 0 2px rgba(232, 38, 43, 0.4); }
+.hbar-fill { background: var(--accent); }
+.hbar-track { background: #222; }
+.daily { border-bottom-color: #555; }
+.daily-bar { fill: var(--accent); }
+.daily-bar:hover { fill: #fff; }
+.donut-num { fill: #fff; }
+.donut-cap { fill: #9a9a9a; }
+.seg-neutral, .dot-neutral { stroke: #f5a524; background: #f5a524; }
+.dot-positive { background: var(--pos); }
+.dot-negative { background: var(--neg); }
+tbody tr:hover { background: rgba(255, 255, 255, 0.05); }
+.alert-error { background: var(--neg-bg); }
+.banner { background: var(--neu-bg); color: var(--neu); }
+.footer { background: #000; border-top: 1px solid #222; }
+a { color: #fff; }
+.wizard-top a { color: var(--muted); }
+:focus-visible { outline-color: rgba(232, 38, 43, 0.7); }
