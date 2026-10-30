@@ -37,7 +37,7 @@ const area = (key: string, label: string, o: Opts = {}): FieldDef => ({
   key, label, type: 'textarea', required: o.required ?? false, role: o.role,
 });
 
-export const CATEGORIES: CategoryDef[] = [
+const ALL_CATEGORIES: CategoryDef[] = [
   {
     slug: 'training',
     title: 'Training Feedback',
@@ -107,6 +107,10 @@ export const CATEGORIES: CategoryDef[] = [
   },
 ];
 
+/** Forms offered to participants. The Presentation Questionnaire was retired in favour of the Panel (channels). */
+export const CATEGORIES: CategoryDef[] = ALL_CATEGORIES.filter((c) => c.slug !== 'presentation');
+
+/** Lookup keeps the retired slug so older submissions still show their title. */
 export const CATEGORY_BY_SLUG = Object.fromEntries(
-  CATEGORIES.map((c) => [c.slug, c]),
+  ALL_CATEGORIES.map((c) => [c.slug, c]),
 ) as Record<CategorySlug, CategoryDef>;

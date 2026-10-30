@@ -20,6 +20,12 @@ export default function Home() {
             <span className="cat-cta">Start <Icon name="arrowRight" /></span>
           </Link>
         ))}
+        <Link to="/panel" className="cat-card panel-card">
+          <div className="cat-top"><span className="cat-icon"><Icon name="message" size={30} /></span><span className="cat-num">{String(CATEGORIES.length + 1).padStart(2, '0')}</span></div>
+          <h2>Panel</h2>
+          <p className="muted">Join a live panel with a PIN. Ask questions, upvote and reply.</p>
+          <span className="cat-cta">Join <Icon name="arrowRight" /></span>
+        </Link>
       </section>
     </>
   );

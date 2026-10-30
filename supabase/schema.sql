@@ -91,67 +91,117 @@ grant select on public.feedback to authenticated;
 -- select id from auth.users where email = 'REPLACE_WITH_ADMIN_EMAIL'
 -- on conflict do nothing;
 
--- 6. Panel questions (admin-only accept / decline / reply on Presentation questions) --------
-create table if not exists public.panel_questions (
-  feedback_id uuid primary key references public.feedback(id) on delete cascade,
-  status      text not null default 'accepted' check (status in ('accepted', 'answered', 'declined')),
-  reply       text check (reply is null or char_length(reply) <= 4000),
-  replied_by  text,
-  updated_at  timestamptz not null default now()
+-- 6. Panel channels (Kahoot-style): admins create a channel with a 6-digit PIN; participants join, ask, upvote, reply --
+create table if not exists public.channels (
+  id         uuid primary key default gen_random_uuid(),
+  code       text not null unique check (code ~ '^[0-9]{6}$'),
+  title      text not null check (char_length(title) between 1 and 120),
+  kind       text not null default 'Presentation' check (char_length(kind) <= 60),
+  speaker    text check (speaker is null or char_length(speaker) <= 100),
+  status     text not null default 'open' check (status in ('open', 'closed')),
+  created_at timestamptz not null default now()
 );
-alter table public.panel_questions enable row level security;
-revoke all on public.panel_questions from anon, authenticated;
-grant select, insert, update on public.panel_questions to authenticated;
-create policy panel_questions_select on public.panel_questions for select to authenticated using (public.is_admin());
-create policy panel_questions_insert on public.panel_questions for insert to authenticated with check (public.is_admin());
-create policy panel_questions_update on public.panel_questions for update to authenticated using (public.is_admin()) with check (public.is_admin());
-
--- 7. Public panel: moderated questions that participants can upvote ------------------------
-create table if not exists public.question_votes (
-  feedback_id uuid not null references public.feedback(id) on delete cascade,
+create table if not exists public.channel_questions (
+  id          uuid primary key default gen_random_uuid(),
+  channel_id  uuid not null references public.channels(id) on delete cascade,
+  body        text not null check (char_length(body) between 1 and 500),
+  author_name text check (author_name is null or char_length(author_name) <= 40),
+  hidden      boolean not null default false,
+  created_at  timestamptz not null default now()
+);
+create table if not exists public.channel_replies (
+  id          uuid primary key default gen_random_uuid(),
+  question_id uuid not null references public.channel_questions(id) on delete cascade,
+  body        text not null check (char_length(body) between 1 and 1000),
+  author_name text check (author_name is null or char_length(author_name) <= 40),
+  is_host     boolean not null default false,
+  hidden      boolean not null default false,
+  created_at  timestamptz not null default now()
+);
+create table if not exists public.channel_votes (
+  question_id uuid not null references public.channel_questions(id) on delete cascade,
   voter_id    uuid not null,
   created_at  timestamptz not null default now(),
-  primary key (feedback_id, voter_id)
+  primary key (question_id, voter_id)
 );
-alter table public.question_votes enable row level security;
-revoke all on public.question_votes from anon, authenticated;
-grant select on public.question_votes to authenticated;
-create policy question_votes_admin_select on public.question_votes for select to authenticated using (public.is_admin());
+create index if not exists channel_questions_channel_idx on public.channel_questions (channel_id);
+create index if not exists channel_replies_question_idx on public.channel_replies (question_id);
 
--- Only questions an admin has accepted or answered are shown. No names are returned.
-create or replace function public.panel_public_questions(p_voter uuid default null)
-returns table (id uuid, event_name text, event_date date, host_name text, question text, status text, reply text, votes bigint, voted boolean, created_at timestamptz)
+alter table public.channels enable row level security;
+alter table public.channel_questions enable row level security;
+alter table public.channel_replies enable row level security;
+alter table public.channel_votes enable row level security;
+revoke all on public.channels, public.channel_questions, public.channel_replies, public.channel_votes from anon, authenticated;
+grant select, insert, update, delete on public.channels, public.channel_questions, public.channel_replies to authenticated;
+grant select on public.channel_votes to authenticated;
+create policy channels_admin on public.channels for all to authenticated using (public.is_admin()) with check (public.is_admin());
+create policy channel_questions_admin on public.channel_questions for all to authenticated using (public.is_admin()) with check (public.is_admin());
+create policy channel_replies_admin on public.channel_replies for all to authenticated using (public.is_admin()) with check (public.is_admin());
+create policy channel_votes_admin on public.channel_votes for select to authenticated using (public.is_admin());
+
+-- Participants never touch the tables directly; they call these functions with the channel PIN.
+create or replace function public.channel_join(p_code text)
+returns table (id uuid, code text, title text, kind text, speaker text, status text)
 language sql stable security definer set search_path = public as $$
-  select f.id, f.event_name, f.event_date, f.host_name,
-         f.comments->>'questions_concerns',
-         pq.status,
-         case when pq.status = 'answered' then pq.reply end,
-         (select count(*) from public.question_votes v where v.feedback_id = f.id),
-         coalesce(p_voter is not null and exists (select 1 from public.question_votes v where v.feedback_id = f.id and v.voter_id = p_voter), false),
-         f.created_at
-  from public.feedback f
-  join public.panel_questions pq on pq.feedback_id = f.id
-  where f.category = 'presentation' and pq.status in ('accepted', 'answered')
-  order by 8 desc, f.created_at desc
+  select c.id, c.code, c.title, c.kind, c.speaker, c.status from public.channels c where c.code = p_code
 $$;
 
-create or replace function public.panel_vote(p_feedback uuid, p_voter uuid, p_on boolean)
-returns bigint
-language plpgsql security definer set search_path = public as $$
+create or replace function public.channel_questions_list(p_code text, p_voter uuid default null)
+returns table (id uuid, body text, author_name text, votes bigint, voted boolean, created_at timestamptz, replies jsonb)
+language sql stable security definer set search_path = public as $$
+  select q.id, q.body, q.author_name,
+         (select count(*) from public.channel_votes v where v.question_id = q.id),
+         coalesce(p_voter is not null and exists (select 1 from public.channel_votes v where v.question_id = q.id and v.voter_id = p_voter), false),
+         q.created_at,
+         coalesce((select jsonb_agg(jsonb_build_object('id', r.id, 'body', r.body, 'author_name', r.author_name, 'is_host', r.is_host, 'created_at', r.created_at) order by r.created_at)
+                   from public.channel_replies r where r.question_id = q.id and not r.hidden), '[]'::jsonb)
+  from public.channel_questions q
+  join public.channels c on c.id = q.channel_id
+  where c.code = p_code and not q.hidden
+  order by 4 desc, q.created_at desc
+$$;
+
+create or replace function public.channel_ask(p_code text, p_body text, p_name text)
+returns uuid language plpgsql security definer set search_path = public as $$
+declare cid uuid; qid uuid;
 begin
-  if p_voter is null then raise exception 'voter required'; end if;
-  if not exists (select 1 from public.panel_questions where feedback_id = p_feedback and status in ('accepted', 'answered')) then
-    raise exception 'question not open for voting';
-  end if;
-  if p_on then
-    insert into public.question_votes (feedback_id, voter_id) values (p_feedback, p_voter) on conflict do nothing;
-  else
-    delete from public.question_votes where feedback_id = p_feedback and voter_id = p_voter;
-  end if;
-  return (select count(*) from public.question_votes where feedback_id = p_feedback);
+  select id into cid from public.channels where code = p_code and status = 'open';
+  if cid is null then raise exception 'channel not open'; end if;
+  insert into public.channel_questions (channel_id, body, author_name)
+  values (cid, btrim(p_body), nullif(btrim(coalesce(p_name, '')), '')) returning id into qid;
+  return qid;
 end $$;
 
-revoke all on function public.panel_public_questions(uuid) from public;
-revoke all on function public.panel_vote(uuid, uuid, boolean) from public;
-grant execute on function public.panel_public_questions(uuid) to anon, authenticated;
-grant execute on function public.panel_vote(uuid, uuid, boolean) to anon, authenticated;
+create or replace function public.channel_reply(p_code text, p_question uuid, p_body text, p_name text)
+returns uuid language plpgsql security definer set search_path = public as $$
+declare rid uuid;
+begin
+  if not exists (select 1 from public.channel_questions q join public.channels c on c.id = q.channel_id
+                 where q.id = p_question and c.code = p_code and c.status = 'open' and not q.hidden) then
+    raise exception 'question not open';
+  end if;
+  insert into public.channel_replies (question_id, body, author_name)
+  values (p_question, btrim(p_body), nullif(btrim(coalesce(p_name, '')), '')) returning id into rid;
+  return rid;
+end $$;
+
+create or replace function public.channel_vote(p_code text, p_question uuid, p_voter uuid, p_on boolean)
+returns bigint language plpgsql security definer set search_path = public as $$
+begin
+  if p_voter is null then raise exception 'voter required'; end if;
+  if not exists (select 1 from public.channel_questions q join public.channels c on c.id = q.channel_id
+                 where q.id = p_question and c.code = p_code and c.status = 'open' and not q.hidden) then
+    raise exception 'question not open';
+  end if;
+  if p_on then
+    insert into public.channel_votes (question_id, voter_id) values (p_question, p_voter) on conflict do nothing;
+  else
+    delete from public.channel_votes where question_id = p_question and voter_id = p_voter;
+  end if;
+  return (select count(*) from public.channel_votes where question_id = p_question);
+end $$;
+
+revoke all on function public.channel_join(text), public.channel_questions_list(text, uuid), public.channel_ask(text, text, text),
+  public.channel_reply(text, uuid, text, text), public.channel_vote(text, uuid, uuid, boolean) from public;
+grant execute on function public.channel_join(text), public.channel_questions_list(text, uuid), public.channel_ask(text, text, text),
+  public.channel_reply(text, uuid, text, text), public.channel_vote(text, uuid, uuid, boolean) to anon, authenticated;

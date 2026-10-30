@@ -354,3 +354,45 @@ a { color: #fff; }
 .qa-reply-label { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 700; color: var(--pos); }
 .qa-votes { display: inline-flex; align-items: center; gap: 0.25rem; color: var(--accent); font-weight: 700; }
 @media (max-width: 520px) { .qa-card.pub { flex-direction: column; } .vote { flex-direction: row; min-width: 0; padding: 0.45rem 0.9rem; gap: 0.5rem; } }
+
+/* Kahoot-style panel: PIN join, coloured shapes, live room */
+:root { --k-red: #e8262b; --k-blue: #1368ce; --k-yellow: #f5a524; --k-green: #26a65b; }
+.sr { position: absolute; left: -9999px; }
+.join { max-width: 520px; margin: 1rem auto; text-align: center; }
+.shapes { display: flex; justify-content: center; gap: 0.75rem; margin-bottom: 1.25rem; }
+.sh { width: 38px; height: 38px; display: block; }
+.s1 { background: var(--k-red); clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+.s2 { background: var(--k-blue); clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); }
+.s3 { background: var(--k-yellow); border-radius: 50%; }
+.s4 { background: var(--k-green); }
+.join-card { display: flex; flex-direction: column; gap: 1rem; margin-top: 1.25rem; padding: 1.5rem; background: rgba(13, 13, 13, 0.85); border: 1.5px dotted #5a5a5a; }
+.pin { width: 100%; text-align: center; font-family: var(--head); font-weight: 700; font-size: 3rem; letter-spacing: 0.35em; padding: 0.6rem 0.4rem 0.6rem 0.9rem; background: #fff; color: #111; border: 0; border-radius: 0; box-shadow: 0 5px 0 #888; }
+.pin::placeholder { color: #aaa; letter-spacing: 0.1em; }
+.pin:focus { outline: 3px solid var(--k-yellow); }
+.join-btn { min-height: 58px; font-size: 1.15rem; }
+.room-head { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: space-between; align-items: flex-start; margin-bottom: 1.25rem; }
+.live-dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: var(--k-green); box-shadow: 0 0 8px var(--k-green); margin-right: 0.3rem; animation: pulse 1.6s infinite; }
+@keyframes pulse { 50% { opacity: 0.35; } }
+.pin-badge { display: flex; flex-direction: column; align-items: center; padding: 0.4rem 1.1rem; background: #fff; color: #111; font-family: var(--head); font-weight: 700; font-size: 2.2rem; letter-spacing: 0.18em; line-height: 1.1; box-shadow: 0 4px 0 #888; }
+.pin-badge span { font-size: 0.7rem; letter-spacing: 0.2em; color: #666; }
+.pin-badge.small { font-size: 1.3rem; padding: 0.25rem 0.7rem; box-shadow: 0 3px 0 #888; }
+.ask { display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 1.5rem; padding: 1rem; background: rgba(13, 13, 13, 0.85); border: 1.5px dotted #5a5a5a; }
+.ask textarea, .reply-box textarea { width: 100%; padding: 0.7rem; background: #0d0d0d; border: 1px solid #555; border-radius: 0; color: #fff; font-size: 1.05rem; resize: vertical; }
+.ask-row { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+.ask-row input { flex: 1; min-width: 180px; }
+.qa-card.pub.shape-tri { border-left: 6px solid var(--k-red); }
+.qa-card.pub.shape-dia { border-left: 6px solid var(--k-blue); }
+.qa-card.pub.shape-cir { border-left: 6px solid var(--k-yellow); }
+.qa-card.pub.shape-sqr { border-left: 6px solid var(--k-green); }
+.replies { list-style: none; margin: 0.6rem 0; padding: 0; display: flex; flex-direction: column; gap: 0.5rem; }
+.replies li { padding: 0.55rem 0.8rem; background: rgba(255, 255, 255, 0.05); border-left: 3px solid #555; }
+.replies li.host { background: rgba(61, 220, 132, 0.08); border-left-color: var(--pos); }
+.replies p { margin: 0.2rem 0 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.reply-who { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; color: var(--muted); }
+.replies li.host .reply-who { color: var(--pos); }
+.reply-box { margin-top: 0.5rem; display: flex; flex-direction: column; gap: 0.5rem; }
+.chan-list { list-style: none; margin: 0 0 1.25rem; padding: 0; display: flex; flex-direction: column; gap: 0.6rem; }
+.chan { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.6rem; padding: 0.6rem 0.8rem; background: rgba(13, 13, 13, 0.85); border: 1.5px dotted #5a5a5a; }
+.chan.on { border-color: var(--accent); }
+.chan-main { display: flex; align-items: center; gap: 1rem; background: none; border: 0; color: inherit; text-align: left; cursor: pointer; flex: 1; min-width: 240px; }
+.panel-card .cat-icon { border-color: var(--k-yellow); color: var(--k-yellow); }

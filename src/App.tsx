@@ -4,8 +4,9 @@ import AdminGate from './components/AdminGate';
 import Home from './pages/Home';
 import FormPage from './pages/FormPage';
 import Dashboard from './pages/Dashboard';
-import Panel from './pages/Panel';
-import PanelPublic from './pages/PanelPublic';
+import PanelAdmin from './pages/PanelAdmin';
+import PanelJoin from './pages/PanelJoin';
+import PanelRoom from './pages/PanelRoom';
 import NotFound from './pages/NotFound';
 
 export default function App() {
@@ -13,7 +14,8 @@ export default function App() {
     <Layout>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/panel" element={<PanelPublic />} />
+        <Route path="/panel" element={<PanelJoin />} />
+        <Route path="/panel/:code" element={<PanelRoom />} />
         <Route path="/feedback/:slug" element={<FormPage />} />
         <Route
           path="/admin"
@@ -27,7 +29,7 @@ export default function App() {
           path="/admin/panel"
           element={
             <AdminGate>
-              <Panel />
+              <PanelAdmin />
             </AdminGate>
           }
         />
