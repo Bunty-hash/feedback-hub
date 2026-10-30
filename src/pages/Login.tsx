@@ -20,6 +20,7 @@ export default function Login() {
 
   return (
     <form className="card form login" onSubmit={onSubmit}>
+      <img className="login-console" src="/grandma3-back.webp" alt="" width="440" height="261" />
       <h1>Administrator sign-in</h1>
       <p className="muted">Sign in to view and export feedback.</p>
       {!isConfigured && (

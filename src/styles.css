@@ -286,3 +286,12 @@ a { color: #fff; }
 .btn-ghost { padding-left: 1rem; }
 .btn-small { padding-left: 1.4rem; }
 .tick { box-shadow: 0 0 24px rgba(232, 38, 43, 0.6); }
+
+/* grandMA3 console pictures */
+.hero { position: relative; overflow: hidden; }
+.hero-console { position: absolute; right: calc(50vw - 50% + 0.5rem); top: 50%; transform: translateY(-50%); width: min(46%, 560px); height: auto; max-width: none; filter: drop-shadow(0 12px 28px rgba(0, 0, 0, 0.7)); pointer-events: none; }
+.login-console { display: block; width: 100%; max-width: 440px; height: auto; margin: 0 auto 1rem; opacity: 0.9; }
+@media (max-width: 900px) { .hero-console { display: none; } }
+.hero { padding-top: 5rem; padding-bottom: 5rem; }
+.hero > *:not(.hero-console) { max-width: 560px; }
+.hero-console { width: min(38%, 460px); }

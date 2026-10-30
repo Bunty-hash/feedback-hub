@@ -6,6 +6,7 @@ export default function Home() {
   return (
     <>
       <section className="hero">
+        <img className="hero-console" src="/grandma3-top.webp" alt="grandMA3 lighting console, top view" width="585" height="347" />
         <p className="kicker">Feedback</p>
         <h1>Share your feedback</h1>
         <p className="muted lead">Choose the form that matches your session. One question at a time, about two minutes.</p>
