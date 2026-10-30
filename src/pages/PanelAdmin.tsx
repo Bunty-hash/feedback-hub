@@ -5,7 +5,8 @@ import AdminNav from '../components/AdminNav';
 
 interface Channel { id: string; code: string; title: string; kind: string; speaker: string | null; status: 'open' | 'closed'; created_at: string }
 interface Reply { id: string; question_id: string; body: string; author_name: string | null; is_host: boolean; hidden: boolean }
-interface Question { id: string; channel_id: string; body: string; author_name: string | null; hidden: boolean; created_at: string }
+interface Question { id: string; channel_id: string; body: string; author_name: string | null; hidden: boolean; accepted: boolean; created_at: string }
+const ACK = 'Thank you. We have received your question and it will be addressed.';
 const KINDS = ['Presentation', 'Product launch', 'Training', 'Masterclass', 'Exhibition', 'Other'];
 
 export default function PanelAdmin() {
@@ -74,9 +75,23 @@ export default function PanelAdmin() {
     if (err) setError('Could not send the reply.'); else { setDraft((d) => ({ ...d, [q.id]: '' })); if (sel) await loadChannel(sel); }
     setBusy('');
   }
+  async function accept(q: Question) {
+    setBusy(q.id); setError('');
+    const { error: e1 } = await supabase.from('channel_replies').insert({ question_id: q.id, body: ACK, is_host: true, author_name: 'Host' });
+    const { error: e2 } = e1 ? { error: e1 } : await supabase.from('channel_questions').update({ accepted: true }).eq('id', q.id);
+    if (e2) setError('Could not accept the question.'); else if (sel) await loadChannel(sel);
+    setBusy('');
+  }
+  async function removeChannel(c: Channel) {
+    if (!window.confirm(`Delete "${c.title}" and all its questions and replies? This cannot be undone.`)) return;
+    const { error: err } = await supabase.from('channels').delete().eq('id', c.id);
+    if (err) setError('Could not delete the channel.'); else { if (sel === c.id) setSel(null); await loadChannels(); }
+  }
   const link = (c: Channel) => `${window.location.origin}/panel/${c.code}`;
   const current = channels.find((c) => c.id === sel) ?? null;
-  const sorted = [...questions].sort((a, b) => (votes[b.id] ?? 0) - (votes[a.id] ?? 0));
+  const pending = questions.filter((q) => !q.accepted);
+  const acceptedCount = questions.length - pending.length;
+  const sorted = [...pending].sort((a, b) => (votes[b.id] ?? 0) - (votes[a.id] ?? 0));
 
   return (
     <div className="dash">
@@ -106,6 +121,7 @@ export default function PanelAdmin() {
             </button>
             <div className="actions">
               <button type="button" className="btn btn-small" onClick={() => void navigator.clipboard?.writeText(link(c))}><Icon name="copy" /> Copy link</button>
+              <button type="button" className="btn btn-small" onClick={() => void removeChannel(c)}><Icon name="x" /> Delete</button>
               <button type="button" className="btn btn-small" onClick={() => void setStatus(c, c.status === 'open' ? 'closed' : 'open')}>{c.status === 'open' ? 'Close' : 'Reopen'}</button>
             </div>
           </li>
@@ -114,8 +130,8 @@ export default function PanelAdmin() {
 
       {current && (
         <section className="panel">
-          <h2>{current.title}: questions ({questions.length})</h2>
-          {sorted.length === 0 ? <p className="muted">No questions yet.</p> : (
+          <h2>{current.title}: new questions ({pending.length}){acceptedCount > 0 && <small className="muted"> · {acceptedCount} accepted</small>}</h2>
+          {sorted.length === 0 ? <p className="muted">No new questions. Accepted questions leave this list.</p> : (
             <ul className="qa-list">
               {sorted.map((q) => (
                 <li key={q.id} className={`qa-card${q.hidden ? ' st-declined' : ''}`}>
@@ -133,7 +149,8 @@ export default function PanelAdmin() {
                   <div className="field"><label htmlFor={`h-${q.id}`}>Host reply</label>
                     <textarea id={`h-${q.id}`} rows={2} maxLength={1000} value={draft[q.id] ?? ''} onChange={(e) => setDraft((d) => ({ ...d, [q.id]: e.target.value }))} placeholder="Answer for everyone in the channel…" /></div>
                   <div className="actions">
-                    <button type="button" className="btn btn-primary" disabled={busy === q.id || !(draft[q.id] ?? '').trim()} onClick={() => void hostReply(q)}><Icon name="reply" /> Send reply</button>
+                    <button type="button" className="btn btn-primary" disabled={busy === q.id} onClick={() => void accept(q)}><Icon name="check" /> Accept</button>
+                    <button type="button" className="btn" disabled={busy === q.id || !(draft[q.id] ?? '').trim()} onClick={() => void hostReply(q)}><Icon name="reply" /> Send reply</button>
                     <button type="button" className="btn btn-ghost" onClick={() => void hideQ(q)}><Icon name={q.hidden ? 'eye' : 'eyeOff'} /> {q.hidden ? 'Show question' : 'Hide question'}</button>
                   </div>
                 </li>
