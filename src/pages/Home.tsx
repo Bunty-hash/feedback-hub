@@ -6,7 +6,10 @@ export default function Home() {
   return (
     <>
       <section className="hero">
-        <img className="hero-console" src="/grandma3-top.webp" alt="grandMA3 lighting console, top view" width="585" height="347" />
+        <div className="hero-brand" role="img" aria-label="MA University">
+          <img src="/ma-logo.png" alt="" width="240" height="114" />
+          <span>University</span>
+        </div>
         <p className="kicker">Feedback</p>
         <h1>Share your feedback</h1>
         <p className="muted lead">Choose the form that matches your session. One question at a time, about two minutes.</p>

@@ -295,3 +295,9 @@ a { color: #fff; }
 .hero { padding-top: 5rem; padding-bottom: 5rem; }
 .hero > *:not(.hero-console) { max-width: 560px; }
 .hero-console { width: min(38%, 460px); }
+
+/* MA University mark in the home banner */
+.hero-brand { position: absolute; right: calc(50vw - 50% + 1.5rem); top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; align-items: center; gap: 0.6rem; pointer-events: none; max-width: none !important; }
+.hero-brand img { width: 240px; height: auto; display: block; filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.7)); }
+.hero-brand span { font-family: var(--head); font-weight: 300; font-size: 1.7rem; letter-spacing: 0.3em; text-transform: uppercase; color: #fff; padding-left: 0.3em; white-space: nowrap; }
+@media (max-width: 900px) { .hero-brand { display: none; } }
