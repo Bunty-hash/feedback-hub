@@ -24,7 +24,7 @@ export default function PanelJoin() {
 
   return (
     <div className="join">
-      <div className="shapes" aria-hidden="true"><i className="sh s1" /><i className="sh s2" /><i className="sh s3" /><i className="sh s4" /></div>
+      <img className="join-badge" src="/join-panel.png" alt="MA Lighting: join the panel" width="220" height="220" />
       <h1>Join a panel</h1>
       <p className="muted lead">Enter the PIN on the screen to ask questions, upvote and reply.</p>
       <form className="join-card" onSubmit={join}>
