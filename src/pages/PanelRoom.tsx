@@ -81,10 +81,10 @@ export default function PanelRoom() {
           <p className="muted small">Sensitive question? Add your email and the host can answer you privately. Your email is seen only by the host of this panel and is never shown to other participants.</p>
         </form>
       )}
-      {closed && <div className="alert alert-error">This panel is closed. You can still read the questions and answers.</div>}
+
       {error && <div className="alert alert-error" role="alert">{error}</div>}
 
-      {qs.length === 0 ? <p className="muted center">No questions yet. Be the first to ask.</p> : (
+      {closed ? <div className="alert alert-error">This panel is closed. Questions are no longer shown.</div> : qs.length === 0 ? <p className="muted center">No questions yet. Be the first to ask.</p> : (
         <ul className="qa-list">
           {qs.map((q, i) => (
             <li key={q.id} className={`qa-card pub shape-${SHAPES[i % 4]}`}>
