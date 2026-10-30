@@ -19,6 +19,7 @@ const TABS: { key: Status | 'all'; label: string }[] = [
 export default function Panel() {
   const [questions, setQuestions] = useState<FeedbackRow[]>([]);
   const [panel, setPanel] = useState<Record<string, PanelRow>>({});
+  const [votes, setVotes] = useState<Record<string, number>>({});
   const [tab, setTab] = useState<Status | 'all'>('new');
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState('');
@@ -28,9 +29,10 @@ export default function Panel() {
   const load = useCallback(async () => {
     setLoading(true);
     setError('');
-    const [fb, pq] = await Promise.all([
+    const [fb, pq, vt] = await Promise.all([
       supabase.from('feedback').select('*').eq('category', 'presentation').order('created_at', { ascending: false }).limit(1000),
       supabase.from('panel_questions').select('feedback_id,status,reply,updated_at').limit(1000),
+      supabase.from('question_votes').select('feedback_id').limit(20000),
     ]);
     if (fb.error || pq.error) {
       setError('Could not load questions. Please refresh, or sign in again.');
@@ -39,6 +41,9 @@ export default function Panel() {
       setQuestions(rows);
       const map: Record<string, PanelRow> = {};
       for (const p of (pq.data ?? []) as PanelRow[]) map[p.feedback_id] = p;
+      const vc: Record<string, number> = {};
+      for (const v of (vt.data ?? []) as { feedback_id: string }[]) vc[v.feedback_id] = (vc[v.feedback_id] ?? 0) + 1;
+      setVotes(vc);
       setPanel(map);
       setDrafts((d) => {
         const next = { ...d };
@@ -58,7 +63,7 @@ export default function Panel() {
     return c;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [questions, panel]);
-  const shown = questions.filter((q) => tab === 'all' || statusOf(q.id) === tab);
+  const shown = questions.filter((q) => tab === 'all' || statusOf(q.id) === tab).sort((a, b) => (votes[b.id] ?? 0) - (votes[a.id] ?? 0));
 
   async function save(id: string, status: Exclude<Status, 'new'>, reply?: string) {
     setBusy(id);
@@ -111,6 +116,7 @@ export default function Panel() {
                   {q.host_name && <span>Speaker: {q.host_name}</span>}
                   <span>{fmtDate(q.event_date)}</span>
                   <span>{q.participant_name ? `Asked by ${q.participant_name}` : 'Anonymous'}</span>
+                  <span className="qa-votes"><Icon name="up" /> {votes[q.id] ?? 0} upvotes</span>
                 </div>
                 <p className="qa-question">“{q.comments.questions_concerns}”</p>
                 <div className="field">

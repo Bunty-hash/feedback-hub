@@ -105,3 +105,53 @@ grant select, insert, update on public.panel_questions to authenticated;
 create policy panel_questions_select on public.panel_questions for select to authenticated using (public.is_admin());
 create policy panel_questions_insert on public.panel_questions for insert to authenticated with check (public.is_admin());
 create policy panel_questions_update on public.panel_questions for update to authenticated using (public.is_admin()) with check (public.is_admin());
+
+-- 7. Public panel: moderated questions that participants can upvote ------------------------
+create table if not exists public.question_votes (
+  feedback_id uuid not null references public.feedback(id) on delete cascade,
+  voter_id    uuid not null,
+  created_at  timestamptz not null default now(),
+  primary key (feedback_id, voter_id)
+);
+alter table public.question_votes enable row level security;
+revoke all on public.question_votes from anon, authenticated;
+grant select on public.question_votes to authenticated;
+create policy question_votes_admin_select on public.question_votes for select to authenticated using (public.is_admin());
+
+-- Only questions an admin has accepted or answered are shown. No names are returned.
+create or replace function public.panel_public_questions(p_voter uuid default null)
+returns table (id uuid, event_name text, event_date date, host_name text, question text, status text, reply text, votes bigint, voted boolean, created_at timestamptz)
+language sql stable security definer set search_path = public as $$
+  select f.id, f.event_name, f.event_date, f.host_name,
+         f.comments->>'questions_concerns',
+         pq.status,
+         case when pq.status = 'answered' then pq.reply end,
+         (select count(*) from public.question_votes v where v.feedback_id = f.id),
+         coalesce(p_voter is not null and exists (select 1 from public.question_votes v where v.feedback_id = f.id and v.voter_id = p_voter), false),
+         f.created_at
+  from public.feedback f
+  join public.panel_questions pq on pq.feedback_id = f.id
+  where f.category = 'presentation' and pq.status in ('accepted', 'answered')
+  order by 8 desc, f.created_at desc
+$$;
+
+create or replace function public.panel_vote(p_feedback uuid, p_voter uuid, p_on boolean)
+returns bigint
+language plpgsql security definer set search_path = public as $$
+begin
+  if p_voter is null then raise exception 'voter required'; end if;
+  if not exists (select 1 from public.panel_questions where feedback_id = p_feedback and status in ('accepted', 'answered')) then
+    raise exception 'question not open for voting';
+  end if;
+  if p_on then
+    insert into public.question_votes (feedback_id, voter_id) values (p_feedback, p_voter) on conflict do nothing;
+  else
+    delete from public.question_votes where feedback_id = p_feedback and voter_id = p_voter;
+  end if;
+  return (select count(*) from public.question_votes where feedback_id = p_feedback);
+end $$;
+
+revoke all on function public.panel_public_questions(uuid) from public;
+revoke all on function public.panel_vote(uuid, uuid, boolean) from public;
+grant execute on function public.panel_public_questions(uuid) to anon, authenticated;
+grant execute on function public.panel_vote(uuid, uuid, boolean) to anon, authenticated;

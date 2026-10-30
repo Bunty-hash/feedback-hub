@@ -152,6 +152,7 @@ export default function FeedbackForm({ category }: { category: CategoryDef }) {
         <div className="actions">
           <button type="button" className="btn btn-primary" onClick={reset}><Icon name="send" /> Submit another response</button>
           <Link to="/" className="btn"><Icon name="home" /> Back to home</Link>
+          {category.slug === 'presentation' && <Link to="/panel" className="btn"><Icon name="up" /> See panel questions</Link>}
         </div>
       </div>
     );

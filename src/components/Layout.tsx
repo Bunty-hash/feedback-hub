@@ -10,6 +10,7 @@ export function Layout({ children }: { children: ReactNode }) {
         <div className="utility">
           <div className="container utility-inner">
             <NavLink to="/" end><Icon name="home" /> Feedback</NavLink>
+            <NavLink to="/panel"><Icon name="message" /> Panel</NavLink>
             <NavLink to="/admin"><Icon name="lock" /> Admin</NavLink>
           </div>
         </div>
