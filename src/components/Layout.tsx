@@ -5,6 +5,7 @@ import { Icon } from './Icon';
 
 function Account() {
   const [email, setEmail] = useState<string | null>(null);
+  const [name, setName] = useState<string | null>(null);
   const [role, setRole] = useState<string | null>(null);
   useEffect(() => {
     if (!isConfigured) return;
@@ -13,8 +14,9 @@ function Account() {
       if (!active) return;
       setEmail(userEmail);
       if (!userEmail) { setRole(null); return; }
-      const { data } = await supabase.rpc('admin_role');
-      if (active) setRole(typeof data === 'string' ? data : null);
+      const { data } = await supabase.rpc('admin_profile');
+      const p = Array.isArray(data) ? data[0] : null;
+      if (active) { setRole(p?.role ?? null); setName(p?.display_name ?? null); }
     }
     void supabase.auth.getSession().then(({ data }) => apply(data.session?.user.email ?? null));
     const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => { setTimeout(() => void apply(session?.user.email ?? null), 0); });
@@ -24,7 +26,7 @@ function Account() {
   return (
     <span className="account">
       <Icon name="user" size={14} />
-      <span className="account-name" title={email}>{email}</span>
+      <span className="account-name" title={email}>{name || email}</span>
       {role && <span className="account-role">{role}</span>}
       <button type="button" className="account-out" onClick={() => supabase.auth.signOut()}>Sign out</button>
     </span>
