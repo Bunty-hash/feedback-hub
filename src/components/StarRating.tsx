@@ -1,3 +1,6 @@
+import { useT } from '../i18n';
+import type { Key } from '../i18n/en';
+
 interface Props {
   value: number;
   onChange: (n: number) => void;
@@ -5,9 +8,9 @@ interface Props {
   id?: string;
 }
 
-const WORDS = ['', 'Poor', 'Fair', 'Good', 'Very good', 'Excellent'];
-
 export function StarRating({ value, onChange, labelledBy, id }: Props) {
+  const t = useT();
+  const word = (n: number) => t(`stars.${n}` as Key);
   return (
     <div>
       <div className="stars" role="radiogroup" aria-labelledby={labelledBy} id={id}>
@@ -17,7 +20,7 @@ export function StarRating({ value, onChange, labelledBy, id }: Props) {
             type="button"
             role="radio"
             aria-checked={value === n}
-            aria-label={`${n} out of 5, ${WORDS[n]}`}
+            aria-label={t('stars.aria', { n, word: word(n) })}
             className={n <= value ? 'star on' : 'star'}
             onClick={() => onChange(n)}
           >
@@ -26,7 +29,7 @@ export function StarRating({ value, onChange, labelledBy, id }: Props) {
           </button>
         ))}
       </div>
-      <p className="stars-text">{value > 0 ? `${value}/5 · ${WORDS[value]}` : 'Click a star, or press 1–5'}</p>
+      <p className="stars-text">{value > 0 ? `${value}/5 · ${word(value)}` : t('stars.hint')}</p>
     </div>
   );
 }

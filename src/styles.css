@@ -407,3 +407,15 @@ a { color: #fff; }
 @media (max-width: 640px) { .utility-inner { gap: 0.9rem; overflow-x: auto; } .account-name { max-width: 110px; } }
 
 .join-badge { display: block; width: min(220px, 60vw); height: auto; margin: 0 auto 0.5rem; }
+
+/* Language: first-screen picker and header switcher */
+.lang-select select { background: #111; color: #fff; border: 1px solid #444; border-radius: 4px; font: inherit; font-size: 0.8rem; padding: 2px 6px; max-width: 150px; }
+.lang-select select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.langpick { color: #fff; min-height: 100vh; min-height: 100svh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 2rem 1.25rem; background: #000; }
+.langpick-logo { margin-bottom: 1.25rem; }
+.langpick h1 { color: #fff; margin: 0 0 0.35rem; font-family: 'Roboto Condensed', Arial, sans-serif; text-transform: uppercase; letter-spacing: 0.04em; font-size: clamp(1.8rem, 5vw, 2.6rem); }
+.langpick-grid { list-style: none; margin: 1.75rem 0 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 0.75rem; width: min(760px, 100%); }
+.langpick-btn { width: 100%; padding: 1rem 0.75rem; font: 500 1.1rem/1.2 inherit; font-family: inherit; background: #141414; color: #fff; border: 2px solid #3a3a3a; border-radius: 6px; cursor: pointer; transition: background 0.15s, color 0.15s, border-color 0.15s; }
+.langpick-btn:hover, .langpick-btn:focus-visible { background: #fff; color: #000; border-color: #fff; outline: none; }
+.langpick-btn.suggested { border-color: var(--accent); }
+@media (max-width: 640px) { .lang-select select { max-width: 110px; } }

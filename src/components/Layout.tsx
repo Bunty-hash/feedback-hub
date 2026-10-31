@@ -2,6 +2,7 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { isConfigured, supabase } from '../lib/supabase';
 import { Icon } from './Icon';
+import { LangSelect, useT } from '../i18n';
 
 function Account() {
   const [email, setEmail] = useState<string | null>(null);
@@ -34,14 +35,16 @@ function Account() {
 }
 
 export function Layout({ children }: { children: ReactNode }) {
+  const t = useT();
   return (
     <div className="shell">
       <header>
         <div className="utility">
           <div className="container utility-inner">
-            <NavLink to="/" end><Icon name="home" /> Feedback</NavLink>
-            <NavLink to="/panel"><Icon name="message" /> Panel</NavLink>
-            <NavLink to="/admin"><Icon name="lock" /> Admin</NavLink>
+            <NavLink to="/" end><Icon name="home" /> {t('nav.feedback')}</NavLink>
+            <NavLink to="/panel"><Icon name="message" /> {t('nav.panel')}</NavLink>
+            <NavLink to="/admin"><Icon name="lock" /> {t('nav.admin')}</NavLink>
+            <LangSelect />
             <Account />
           </div>
         </div>
@@ -56,12 +59,12 @@ export function Layout({ children }: { children: ReactNode }) {
       </header>
       {!isConfigured && (
         <div className="banner" role="alert">
-          Supabase is not connected yet. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to enable submissions and the admin area.
+          {t('banner.noDb')}
         </div>
       )}
       <main className="container main">{children}</main>
       <footer className="footer">
-        <div className="container">Your feedback helps us improve. Participant names are optional.</div>
+        <div className="container">{t('footer')}</div>
       </footer>
     </div>
   );

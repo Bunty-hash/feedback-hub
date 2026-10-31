@@ -1,4 +1,5 @@
-import { Route, Routes } from 'react-router-dom';
+import { Route, Routes, useLocation } from 'react-router-dom';
+import { LanguagePicker, useI18n } from './i18n';
 import { Layout } from './components/Layout';
 import AdminGate from './components/AdminGate';
 import Home from './pages/Home';
@@ -11,6 +12,10 @@ import PanelRoom from './pages/PanelRoom';
 import NotFound from './pages/NotFound';
 
 export default function App() {
+  const { chosen } = useI18n();
+  const { pathname } = useLocation();
+  // First thing every participant sees: choose a language. Staff pages (/admin) skip it.
+  if (!chosen && !pathname.startsWith('/admin')) return <LanguagePicker />;
   return (
     <Layout>
       <Routes>

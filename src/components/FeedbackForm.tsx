@@ -5,12 +5,17 @@ import { supabase, isConfigured } from '../lib/supabase';
 import type { CategoryDef, FieldDef } from '../lib/categories';
 import { localIsoDate } from '../lib/format';
 import { StarRating } from './StarRating';
+import { useT } from '../i18n';
+import type { Key } from '../i18n/en';
 
 type Values = Record<string, string | number>;
 type Status = 'idle' | 'submitting' | 'done' | 'error';
 
 /** One question per screen: step 0 is the optional name, then each field in turn. */
 export default function FeedbackForm({ category }: { category: CategoryDef }) {
+  const t = useT();
+  const label = (f: FieldDef) => t(`f.${category.slug}.${f.key}` as Key);
+  const catTitle = t(`cat.${category.slug}.title` as Key);
   const [values, setValues] = useState<Values>({});
   const [name, setName] = useState('');
   const [trap, setTrap] = useState(''); // honeypot: real people never see or fill this
@@ -42,11 +47,11 @@ export default function FeedbackForm({ category }: { category: CategoryDef }) {
   function check(f: FieldDef): string {
     const v = values[f.key];
     if (f.type === 'rating') {
-      return f.required && !(typeof v === 'number' && v >= 1 && v <= 5) ? 'Please choose a rating from 1 to 5.' : '';
+      return f.required && !(typeof v === 'number' && v >= 1 && v <= 5) ? t('form.errRating') : '';
     }
     const s = typeof v === 'string' ? v.trim() : '';
-    if (f.required && !s) return 'This answer is required.';
-    if (f.type === 'date' && s && s > today) return 'The date cannot be in the future.';
+    if (f.required && !s) return t('form.errRequired');
+    if (f.type === 'date' && s && s > today) return t('form.errFuture');
     return '';
   }
 
@@ -147,17 +152,17 @@ export default function FeedbackForm({ category }: { category: CategoryDef }) {
     return (
       <div className="confirm" role="status">
         <div className="tick" aria-hidden="true"><Icon name="check" size={40} /></div>
-        <h1>Thank you for your feedback</h1>
-        <p className="muted">Your {category.title.toLowerCase()} has been submitted successfully.</p>
+        <h1>{t('form.thanks')}</h1>
+        <p className="muted">{t('form.submitted', { title: catTitle })}</p>
         <div className="actions">
-          <button type="button" className="btn btn-primary" onClick={reset}><Icon name="send" /> Submit another response</button>
-          <Link to="/" className="btn"><Icon name="home" /> Back to home</Link>
+          <button type="button" className="btn btn-primary" onClick={reset}><Icon name="send" /> {t('form.another')}</button>
+          <Link to="/" className="btn"><Icon name="home" /> {t('form.home')}</Link>
         </div>
       </div>
     );
   }
 
-  const title = field ? field.label : 'What is your name? (optional)';
+  const title = field ? label(field) : t('form.name');
   const required = field?.required ?? false;
 
   return (
@@ -165,7 +170,7 @@ export default function FeedbackForm({ category }: { category: CategoryDef }) {
       <div
         className="progress"
         role="progressbar"
-        aria-label="Progress"
+        aria-label={t('form.progress')}
         aria-valuemin={0}
         aria-valuemax={total}
         aria-valuenow={index + 1}
@@ -174,8 +179,8 @@ export default function FeedbackForm({ category }: { category: CategoryDef }) {
       </div>
 
       <p className="wizard-top">
-        <Link to="/"><Icon name="arrowLeft" /> All forms</Link>
-        <span>{category.title}</span>
+        <Link to="/"><Icon name="arrowLeft" /> {t('form.all')}</Link>
+        <span>{catTitle}</span>
       </p>
 
       <div className="step" ref={stepRef} key={index}>
@@ -185,15 +190,15 @@ export default function FeedbackForm({ category }: { category: CategoryDef }) {
         <h1 className="q" id="q-title">
           {title}{required ? <span className="req"> *</span> : null}
         </h1>
-        {!field && <p className="muted">Leave this blank if you prefer to stay anonymous.</p>}
+        {!field && <p className="muted">{t('form.nameHint')}</p>}
 
         {!field && (
           <input className="big" type="text" maxLength={100} autoComplete="off" aria-labelledby="q-title"
-            placeholder="Type your answer here…" value={name} onChange={(e) => setName(e.target.value)} />
+            placeholder={t('form.placeholder')} value={name} onChange={(e) => setName(e.target.value)} />
         )}
         {field?.type === 'text' && (
           <input className="big" type="text" maxLength={field.role === 'event_name' ? 200 : 100} aria-labelledby="q-title"
-            placeholder="Type your answer here…" value={typeof values[field.key] === 'string' ? (values[field.key] as string) : ''}
+            placeholder={t('form.placeholder')} value={typeof values[field.key] === 'string' ? (values[field.key] as string) : ''}
             onChange={(e) => setValue(field.key, e.target.value)} />
         )}
         {field?.type === 'date' && (
@@ -204,9 +209,9 @@ export default function FeedbackForm({ category }: { category: CategoryDef }) {
         {field?.type === 'textarea' && (
           <>
             <textarea className="big" rows={4} maxLength={2000} aria-labelledby="q-title"
-              placeholder="Type your answer here…" value={typeof values[field.key] === 'string' ? (values[field.key] as string) : ''}
+              placeholder={t('form.placeholder')} value={typeof values[field.key] === 'string' ? (values[field.key] as string) : ''}
               onChange={(e) => setValue(field.key, e.target.value)} />
-            <p className="hint">Shift + Enter for a new line</p>
+            <p className="hint">{t('form.newline')}</p>
           </>
         )}
         {field?.type === 'rating' && (
@@ -218,17 +223,17 @@ export default function FeedbackForm({ category }: { category: CategoryDef }) {
         {status === 'error' && (
           <div className="alert alert-error" role="alert">
             {isConfigured
-              ? 'We could not save your feedback. Please check your connection and try again.'
-              : 'The website is not connected to its database yet, so feedback cannot be saved.'}
+              ? t('form.errSave')
+              : t('form.errDb')}
           </div>
         )}
 
         <div className="step-actions">
-          {index > 0 && <button type="button" className="btn" onClick={back}><Icon name="arrowLeft" /> Back</button>}
+          {index > 0 && <button type="button" className="btn" onClick={back}><Icon name="arrowLeft" /> {t('form.back')}</button>}
           <button type="button" className="btn btn-primary" onClick={next} disabled={submitting}>
-            {isLast ? (submitting ? 'Submitting…' : <>Submit feedback <Icon name="send" /></>) : <>OK <Icon name="check" /></>}
+            {isLast ? (submitting ? t('form.submitting') : <>{t('form.submit')} <Icon name="send" /></>) : <>{t('form.ok')} <Icon name="check" /></>}
           </button>
-          <span className="hint">press <strong>Enter ↵</strong></span>
+          <span className="hint">{t('form.press')}</span>
         </div>
       </div>
 
