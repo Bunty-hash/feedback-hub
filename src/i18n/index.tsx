@@ -12,20 +12,20 @@ import ko from './ko';
 import ms from './ms';
 import vi from './vi';
 
-/** English first, then the Asian languages, then European. This order is used by the picker and the switcher. */
+/** English first, then the other languages A to Z by their English name. Used by the picker and the switcher. */
 export const LANGS = [
   { code: 'en', name: 'English', dict: en as Dict },
   { code: 'zh', name: '简体中文', dict: zh, html: 'zh-Hans' },
+  { code: 'de', name: 'Deutsch', dict: de },
+  { code: 'hi', name: 'हिन्दी', dict: hi },
+  { code: 'id', name: 'Bahasa Indonesia', dict: id },
+  { code: 'it', name: 'Italiano', dict: it },
   { code: 'ja', name: '日本語', dict: ja },
   { code: 'ko', name: '한국어', dict: ko },
-  { code: 'id', name: 'Bahasa Indonesia', dict: id },
   { code: 'ms', name: 'Bahasa Melayu', dict: ms },
+  { code: 'es', name: 'Español', dict: es },
   { code: 'th', name: 'ไทย', dict: th },
   { code: 'vi', name: 'Tiếng Việt', dict: vi },
-  { code: 'hi', name: 'हिन्दी', dict: hi },
-  { code: 'it', name: 'Italiano', dict: it },
-  { code: 'de', name: 'Deutsch', dict: de },
-  { code: 'es', name: 'Español', dict: es },
 ] as const;
 export type Lang = (typeof LANGS)[number]['code'];
 
